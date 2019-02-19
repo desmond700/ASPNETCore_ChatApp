@@ -62,7 +62,7 @@ namespace ASPNETCore_ChatApp.Models
                     cmd.Parameters.AddWithValue("?uname", user.Username);
                     cmd.Parameters.AddWithValue("?email", user.Email);
                     cmd.Parameters.AddWithValue("?pwrd", user.Password);
-                    cmd.Parameters.AddWithValue("?image", user.Image);
+                    if (user.Image != null) cmd.Parameters.AddWithValue("?image", user.Image);
                     cmd.ExecuteNonQuery();
                     conn.Close();
                 }

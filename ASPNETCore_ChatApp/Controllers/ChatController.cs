@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ASPNETCore_ChatApp.Models;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace ASPNETCore_ChatApp.Controllers
 {
@@ -18,6 +19,7 @@ namespace ASPNETCore_ChatApp.Controllers
 
         public IActionResult Login()
         {
+            Debug.WriteLine("Directory: "+ Directory.GetCurrentDirectory());
             return View();
         }
 
@@ -46,8 +48,22 @@ namespace ASPNETCore_ChatApp.Controllers
                         Username = form["uname"].ToString(),
                         Email = form["email"].ToString(),
                         Password = form["pwrd"].ToString(),
-                        Image = form["img-file"].ToString()
+                        Image = null
                     };
+
+                    if (form.Files["img-file"] != null && form.Files["img-file"].Length > 0)
+                    {
+                        var fileName = Path.GetFileName(form.Files["img-file"].FileName);
+                        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\img", fileName);
+                        using (var fileSteam = new FileStream(filePath, FileMode.Create))
+                        {
+                            var task = Task.Run(async () =>
+                            {
+                                await form.Files["img-file"].CopyToAsync(fileSteam);
+                            });
+                        }
+                        user.Image = fileName;
+                    }
 
                     userData = context.InsertUser(user);
                 }
