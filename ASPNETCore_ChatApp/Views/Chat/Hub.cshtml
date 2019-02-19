@@ -1,0 +1,59 @@
+﻿@model ASPNETCore_ChatApp.Models.User
+
+@{
+    ViewData["Title"] = "ChatHub";
+}
+
+<div class="container h-100">
+    <div class="row">
+        <div class="d-flex justify-content-between col-12 pt-3 pb-2">
+            <h1>ChatHub</h1>
+            <a class="btn btn-dark my-auto text-white">Logout</a>
+        </div>
+        <div class="col-12 col-md-3 list-panel">
+            <div class="text-white">
+                <div class="d-flex flex-row my-4">
+                    <div class="d-flex">
+                        <img class="my-auto" src="~/img/@Model.Image" alt="user" width="34" height="34" />
+                    </div>
+                    <div class="d-flex flex-wrap align-content-center h-100">
+                        <h5 class="text-white mb-0 col-12">@Model.Username</h5>
+                        <p class="statusTxt text-secondary mb-0 col-12">Offline</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between">
+                        <p class="text-white mb-0">Users online</p>
+                        <span>(0)</span>
+                    </div>
+                    <hr class="bg-white mt-0" />
+                </div>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Active</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-12 col-md-9 message-panel">
+            <div class="message-box">
+
+            </div>
+            <div class="message-input d-flex">
+                <input type="text" class="form-control" placeholder="Write a message" />
+                <button id="send" class="btn">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>

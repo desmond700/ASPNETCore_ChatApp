@@ -12,13 +12,40 @@ a.navbar-brand {
 html {
   font-size: 14px;
 }
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+
+body {
+    height: 100vh;
+    background-color: #D2D2D2;
 }
 
-.border-top {
+.list-panel {
+    background-color: #212020;
+    height: 100%;
+}
+
+.message-panel {
+    display: flex;
+    background-color: #979797;
+    height: 100%;
+}
+
+.message-input{
+    align-self: flex-end;
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.message-input > input {
+    margin-right: 2px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+    .border-top {
   border-top: 1px solid #e5e5e5;
 }
 .border-bottom {
