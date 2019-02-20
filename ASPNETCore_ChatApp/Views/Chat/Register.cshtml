@@ -8,7 +8,7 @@
         <img class="mx-auto" src="~/img/user (1).png" width="150" height="150" />
     </div>
     <p class="text-center">Create a new account</p>
-    <form class="mt-5" asp-controller="Chat" asp-action="Hub" method="post">
+    <form class="mt-5" asp-controller="Chat" asp-action="Hub" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label>Username</label>
             <input type="text" class="form-control" name="uname" required />

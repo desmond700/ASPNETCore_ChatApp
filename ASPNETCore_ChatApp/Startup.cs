@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ASPNETCore_ChatApp.Models;
+using ASP.NetCore_ChatApp.Hubs;
 
 namespace ASPNETCore_ChatApp
 {
@@ -37,7 +38,7 @@ namespace ASPNETCore_ChatApp
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-
+            services.AddSignalR();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.Add(new ServiceDescriptor(typeof(ChatDBContext), new ChatDBContext(Configuration.GetConnectionString("DefaultConnection"))));
         }
@@ -59,7 +60,10 @@ namespace ASPNETCore_ChatApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<ChatHub>("/chatHub");
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

@@ -13,9 +13,6 @@ namespace ASP.NetCore_ChatApp.Hubs
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
 
-        public async Task UserLogin(string username, string password)
-        {
-            //await Clients.All.SendAsync("ReceiveMessage", user, message);
-        }
+
     }
 }

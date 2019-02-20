@@ -28,7 +28,7 @@ namespace ASPNETCore_ChatApp.Controllers
             return View();
         }
 
-        public IActionResult Hub(IFormCollection form)
+        public async Task<IActionResult> Hub(IFormCollection form)
         {
             //var user = TempData["UserData"] as User;
             //Debug.WriteLine("userData: " + user.Username);
@@ -37,6 +37,8 @@ namespace ASPNETCore_ChatApp.Controllers
             {
                 ChatDBContext context = HttpContext.RequestServices.GetService(typeof(ChatDBContext)) as ChatDBContext;
                 User userData = null;
+                var imageFile = form.Files["img-file"];
+
                 if (form["form-type"] == "login")
                 {
                     userData = context.GetUser(form["uname"].ToString(), form["pwrd"].ToString());
@@ -50,17 +52,14 @@ namespace ASPNETCore_ChatApp.Controllers
                         Password = form["pwrd"].ToString(),
                         Image = null
                     };
-
-                    if (form.Files["img-file"] != null && form.Files["img-file"].Length > 0)
+                    
+                    if (imageFile != null && imageFile.Length > 0)
                     {
-                        var fileName = Path.GetFileName(form.Files["img-file"].FileName);
+                        var fileName = Path.GetFileName(imageFile.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\img", fileName);
                         using (var fileSteam = new FileStream(filePath, FileMode.Create))
                         {
-                            var task = Task.Run(async () =>
-                            {
-                                await form.Files["img-file"].CopyToAsync(fileSteam);
-                            });
+                            await imageFile.CopyToAsync(fileSteam);
                         }
                         user.Image = fileName;
                     }
