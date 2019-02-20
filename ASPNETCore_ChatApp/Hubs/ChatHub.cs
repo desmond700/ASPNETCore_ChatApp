@@ -13,6 +13,13 @@ namespace ASP.NetCore_ChatApp.Hubs
             await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
 
-
+        public override Task OnConnectedAsync()
+        {
+            var name = Context.User.Identity.Name;
+            System.Diagnostics.Debug.WriteLine("User isAuthenticated: " + Context.User.Identity.IsAuthenticated);
+            System.Diagnostics.Debug.WriteLine("ConnectionId: " + Context.ConnectionId);
+            System.Diagnostics.Debug.WriteLine("User connected: " + name);
+            return base.OnConnectedAsync();
+        }
     }
 }

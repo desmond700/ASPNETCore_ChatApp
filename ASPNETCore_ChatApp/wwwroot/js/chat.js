@@ -3,6 +3,7 @@
 window.onload = function() {
 
     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+    connection.qs = { 'Token': 'your token string' };
 
     if (document.getElementById("sendButton") !== null) {
         //Disable send button until connection is established

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using ASPNETCore_ChatApp.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Net;
 
 namespace ASPNETCore_ChatApp.Controllers
 {
@@ -37,11 +38,17 @@ namespace ASPNETCore_ChatApp.Controllers
             {
                 ChatDBContext context = HttpContext.RequestServices.GetService(typeof(ChatDBContext)) as ChatDBContext;
                 User userData = null;
+                Cookie authCookie;
+
                 var imageFile = form.Files["img-file"];
 
                 if (form["form-type"] == "login")
                 {
                     userData = context.GetUser(form["uname"].ToString(), form["pwrd"].ToString());
+
+                    AuthenticateUser(form["uname"].ToString(), form["pwrd"].ToString(), out authCookie);
+
+                    Debug.WriteLine("Cookie name: "+authCookie.Name);
                 }
                 else if (form["form-type"] == "register")
                 {
@@ -73,6 +80,36 @@ namespace ASPNETCore_ChatApp.Controllers
             }
 
             return RedirectToAction("Login");
+        }
+
+        private static bool AuthenticateUser(string user, string password, out Cookie authCookie)
+        {
+            var request = WebRequest.Create("/Chat/Hub") as HttpWebRequest;
+            request.Method = "POST";
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.CookieContainer = new CookieContainer();
+
+            var authCredentials = "UserName=" + user + "&Password=" + password;
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authCredentials);
+            request.ContentLength = bytes.Length;
+            using (var requestStream = request.GetRequestStream())
+            {
+                requestStream.Write(bytes, 0, bytes.Length);
+            }
+
+            using (var response = request.GetResponse() as HttpWebResponse)
+            {
+                authCookie = response.Cookies[FormsAuthentication.FormsCookieName];
+            }
+
+            if (authCookie != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
