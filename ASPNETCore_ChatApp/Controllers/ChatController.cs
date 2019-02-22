@@ -8,11 +8,16 @@ using ASPNETCore_ChatApp.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ASPNETCore_ChatApp.Controllers
 {
     public class ChatController : Controller
     {
+        IHttpContextAccessor contextAccessor;
         public IActionResult Index()
         {
             return RedirectToAction("Login");
@@ -22,6 +27,14 @@ namespace ASPNETCore_ChatApp.Controllers
         {
             Debug.WriteLine("Directory: "+ Directory.GetCurrentDirectory());
             return View();
+        }
+
+        public async void Logout()
+        {
+            await HttpContext.SignOutAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+            //return RedirectToAction("Login");
         }
 
         public IActionResult Register()
@@ -34,11 +47,12 @@ namespace ASPNETCore_ChatApp.Controllers
             //var user = TempData["UserData"] as User;
             //Debug.WriteLine("userData: " + user.Username);
 
+
+
             if (ModelState.IsValid)
             {
                 ChatDBContext context = HttpContext.RequestServices.GetService(typeof(ChatDBContext)) as ChatDBContext;
-                User userData = null;
-                Cookie authCookie;
+                User userData = new User(contextAccessor);
 
                 var imageFile = form.Files["img-file"];
 
@@ -46,13 +60,13 @@ namespace ASPNETCore_ChatApp.Controllers
                 {
                     userData = context.GetUser(form["uname"].ToString(), form["pwrd"].ToString());
 
-                    AuthenticateUser(form["uname"].ToString(), form["pwrd"].ToString(), out authCookie);
+                    AuthenticateUser(userData.Username);
 
-                    Debug.WriteLine("Cookie name: "+authCookie.Name);
+                    Debug.WriteLine("Name: "+ userData.Username + ", " + userData.Email);
                 }
                 else if (form["form-type"] == "register")
                 {
-                    User user = new User()
+                    User user = new User(contextAccessor)
                     {
                         Username = form["uname"].ToString(),
                         Email = form["email"].ToString(),
@@ -72,6 +86,7 @@ namespace ASPNETCore_ChatApp.Controllers
                     }
 
                     userData = context.InsertUser(user);
+                    AuthenticateUser(userData.Username);
                 }
                 
                 //TempData["UserData"] = user;
@@ -82,34 +97,53 @@ namespace ASPNETCore_ChatApp.Controllers
             return RedirectToAction("Login");
         }
 
-        private static bool AuthenticateUser(string user, string password, out Cookie authCookie)
+        private async void AuthenticateUser(string user)
         {
-            var request = WebRequest.Create("/Chat/Hub") as HttpWebRequest;
-            request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.CookieContainer = new CookieContainer();
+            var claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.NameIdentifier, user),
+                new Claim(ClaimTypes.Name, user),
+                new Claim(ClaimTypes.Role, "User")
+            };
 
-            var authCredentials = "UserName=" + user + "&Password=" + password;
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(authCredentials);
-            request.ContentLength = bytes.Length;
-            using (var requestStream = request.GetRequestStream())
-            {
-                requestStream.Write(bytes, 0, bytes.Length);
-            }
+            var userIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            using (var response = request.GetResponse() as HttpWebResponse)
-            {
-                authCookie = response.Cookies[FormsAuthentication.FormsCookieName];
-            }
+            ClaimsPrincipal principal = new ClaimsPrincipal(userIdentity);
 
-            if (authCookie != null)
+            var authProperties = new AuthenticationProperties
             {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+                AllowRefresh = true,
+                // Refreshing the authentication session should be allowed.
+
+                //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+                // The time at which the authentication ticket expires. A 
+                // value set here overrides the ExpireTimeSpan option of 
+                // CookieAuthenticationOptions set with AddCookie.
+
+                IsPersistent = true,
+                // Whether the authentication session is persisted across 
+                // multiple requests. Required when setting the 
+                // ExpireTimeSpan option of CookieAuthenticationOptions 
+                // set with AddCookie. Also required when setting 
+                ExpiresUtc = DateTimeOffset.Now.AddDays(1),
+
+                IssuedUtc = DateTimeOffset.Now
+                // The time at which the authentication ticket was issued.
+
+                //RedirectUri = <string>
+                // The full path or absolute URI to be used as an http 
+                // redirect response value.
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                principal, 
+                authProperties);
+        }
+
+        protected void Session_End()
+        {
+            Logout();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -49,8 +49,9 @@ p{
     display: flex;
 }
 
-.message-container{
+.message-container {
     display: flex;
+    margin: 10px 0;
 }
 
 .message > div {
@@ -60,10 +61,8 @@ p{
 
 .message > div > div.msg-container {
     padding: 5px;
-    background-color: #212020;
     border-radius: 5px;
     min-width: 150px;
-    color: #fff;
 }
 
 .message > img {
@@ -75,6 +74,17 @@ p{
     width: 100%;
     margin-bottom: 10px;
 }
+
+.sender {
+    background-color: #484848;
+    color: #fff;
+}
+
+.receiver {
+    background-color: #DFDFDF;
+    color: #000;
+}
+
 
 .nav-item {
     padding: 0 5px;

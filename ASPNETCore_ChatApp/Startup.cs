@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ASPNETCore_ChatApp.Models;
-using ASP.NetCore_ChatApp.Hubs;
+using ASPNETCore_ChatApp.Hubs;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using ASPNETCore_ChatApp.Helper;
 
 namespace ASPNETCore_ChatApp
 {
@@ -37,8 +39,22 @@ namespace ASPNETCore_ChatApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, option =>
+            {
+                option.Cookie.Name = "aspnet_chatapp_authCookie";
+                option.Cookie.Domain = "localhost";
+                option.SlidingExpiration = true;
+                option.Cookie.HttpOnly = true;
+                option.Cookie.Path = "/chatHub";
+                option.ExpireTimeSpan = new TimeSpan((new DateTime()).Millisecond + (1000 * 60 * 60));
+                /*option.TicketDataFormat = ticketFormat;
+                option.CookieManager = new CustomChunkingCookieManager();*/
+            });
             services.AddSignalR();
+            services.AddSession();
+            services.AddSingleton<RequestHandler>();
+            services.AddHttpContextAccessor();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.Add(new ServiceDescriptor(typeof(ChatDBContext), new ChatDBContext(Configuration.GetConnectionString("DefaultConnection"))));
         }
@@ -48,6 +64,8 @@ namespace ASPNETCore_ChatApp
         {
             if (env.IsDevelopment())
             {
+                app.UseAuthentication();
+
                 app.UseDeveloperExceptionPage();
             }
             else

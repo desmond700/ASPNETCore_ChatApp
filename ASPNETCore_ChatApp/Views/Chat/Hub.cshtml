@@ -24,29 +24,12 @@
                 <div>
                     <div class="d-flex justify-content-between">
                         <p class="text-white mb-0">Users online</p>
-                        <span>(0)</span>
+                        <span>(<span id="usersCount"></span>)</span>
                     </div>
                     <hr class="bg-white mt-0" />
                 </div>
             </div>
-            <ul class="nav flex-column">
-                <li class="nav-item d-flex">
-                    <img class="my-auto img-round" src="~/img/@Model.Image" alt="user" width="34" height="34" />
-                    <div class="ml-2">
-                        <p class="mb-0">Active</p>
-                        <span class="text-secondary">1 hour</span>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                </li>
-            </ul>
+            <ul class="nav flex-column" />
         </div>
         <div class="col-12 col-md-9 message-panel">
             <h3 class="text-white py-3">Your conversation with <span id="convo_partner_name">convo_partner_name</span></h3>
@@ -73,4 +56,5 @@
 </div>
 
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<!--<script src="~/lib/jquery/dist/jquery.signalr-2.2.js"></script>-->
 <script src="~/js/chat.js"></script>
