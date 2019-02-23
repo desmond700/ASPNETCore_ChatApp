@@ -18,6 +18,7 @@ namespace ASPNETCore_ChatApp.Hubs
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
         private RequestHandler requestHandler;
+        private string CallerConnectionId { get { return Context.ConnectionId; } }
 
         List<User> CurrentUsersList = new List<User>();
         //List<KeyValuePair<string, int>> list = dictionary.ToList();
@@ -34,7 +35,7 @@ namespace ASPNETCore_ChatApp.Hubs
             
                 await Clients.Caller.SendAsync("SentMessage", userObj, message);
             //if (Context.ConnectionId == userid)
-                await Clients.Others.SendAsync("ReceiveMessage", userObj, message);
+                await Clients.Client(userid).SendAsync("ReceiveMessage", userObj, message);
         }
 
         public override Task OnConnectedAsync()
@@ -43,10 +44,10 @@ namespace ASPNETCore_ChatApp.Hubs
             System.Diagnostics.Debug.WriteLine("User isAuthenticated: " + Context.User.Identity.IsAuthenticated);
             System.Diagnostics.Debug.WriteLine("ConnectionId: " + Context.ConnectionId);
             System.Diagnostics.Debug.WriteLine("User connected: " + name);
-
+            
             try
             {
-                List<object> userObj = ((ChatDBContext)dbContext()).InsertOnlineUser(Context.User.Identity.Name, Context.ConnectionId);
+                List<object> userObj = ((ChatDBContext)dbContext()).SetOnlineUser(Context.User.Identity.Name, Context.ConnectionId);
 
                 //CurrentUsersList = userObj;
                 System.Diagnostics.Debug.WriteLine("item key count: " + CurrentUsersList.Count);
@@ -75,7 +76,8 @@ namespace ASPNETCore_ChatApp.Hubs
             try
             {
                 ((ChatDBContext)dbContext()).RemoveOnlineUser(Context.User.Identity.Name);
-                //CurrentUsersList.Remove(Context.ConnectionId);
+                List<object> userObj = ((ChatDBContext)dbContext()).GetOnlineUsers();
+                Clients.All.SendAsync("GetConnectedUsers", userObj);
                 System.Diagnostics.Debug.WriteLine("user removed");
             }
             catch (Exception ex)

@@ -1,52 +1,57 @@
 ﻿"use strict";
 
-window.onload = function() {
+window.onload = function () {
+
+    document.getElementsByClassName("chat-sect")[0].style.display = "none";
+    document.getElementsByClassName("no-chat")[0].style.display = "flex";
+
 
     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-    var connection_id;
-   
+    var username = window.sessionStorage.getItem("uname");
+    var userId;
+
+    window.connection_id = "connect test";
+
     connection.start().then(function () {
         connection.invoke("getConnectionId").then(function (connectionId) {
+            console.log("get cookie: " + document.cookie);
             console.log("getConnectionId " + connectionId);
-            connection_id = connectionId;
+
+            //console.log("username: " + window.username);
+            console.log(window.username);
+            document.getElementById("sendButton").disabled = false;
+        }).catch(function (err) {
+            return console.error(err.toString());
         });
 
-        console.log("connection: " + connection.id);
-        document.getElementById("sendButton").disabled = false;
-    }).catch(function (err) {
-        return console.error(err.toString());
+        if (document.getElementById("sendButton") !== null) {
+            //Disable send button until connection is established
+            //document.getElementById("sendButton").disabled = true;
+        }
     });
 
-
-    if (document.getElementById("sendButton") !== null) {
-        //Disable send button until connection is established
-        //document.getElementById("sendButton").disabled = true;
-    }
-
     connection.on("GetConnectedUsers", function (data) {
+        console.log("data lenght: " + data.length - 1);
         console.log(data);
-        
-        $("#usersCount").html(data.length-1);
-        $(".nav").html();
+        $("#usersCount").html(data.length - 1);
+        $(".nav").children().remove();
+
         if (data.length - 1) {
             data.filter((item) => {
-                return;
+                return item.username !== username;
             }).map((item, key) => {
-                console.log(key + "!==" + connection_id);
-                if (key !== connection_id) {
-
-                    var p = $("<p>" + item.username + "</p>");
-                    var span = $("<span class='text-secondary'>" + new Date().getFullYear() + "</span>");
-                    var div = $("<div class='ml-2'></div>").append(p, span);
-                    var img = $("<img src='/img/" + item.image + "' class='my-auto img-round' width='34' height='34' />");
-                    var navItem = $("<div class='nav-item d-flex'></div>").append(img, div);
-                    $(".nav").append(navItem);
-                }
+                console.log("key: "+key);
+                var p = $("<p>" + item.username + "</p>");
+                var span = $("<span class='text-secondary'>" + new Date().getFullYear() + "</span>");
+                var div = $("<div class='ml-2'></div>").append(p, span);
+                var img = $("<img src='/img/" + item.image + "' class='my-auto img-round' width='34' height='34' />");
+                var navItem = $("<div class='nav-item d-flex' data-uname='" + item.username + "' data-connId='" + item.connectionId + "'></div>").append(img, div);
+                $(".nav").append(navItem);
             });
         } else {
-            $(".nav").append($("<li class='my-4'><p class='text-white'>No one else is online.</p></li>"));
+            $(".nav").html($("<li class='my-2'><p class='text-white'>No other user online.</p></li>"));
         }
-        
+
     });
 
     connection.on("ReceiveMessage", function (user, message) {
@@ -64,7 +69,6 @@ window.onload = function() {
         var img = $("<img src='/img/" + user.image + "' class='img-round' width='34' height='34' />");
         var messageDiv = $("<div class='message mr-auto'></div>").append(img, div);
         var messageContainer = $("<div class='message-container'></div>").append(messageDiv);
-        //li.textContent = encodedMsg;
 
         $(".message-box").append(messageContainer);
     });
@@ -89,10 +93,24 @@ window.onload = function() {
         $(".message-box").append(messageContainer);
     });
 
+    $(".nav").on("click", ".nav-item", function (event) {
+
+        $('.nav div.active').removeClass('active');
+        $(this).addClass('active');
+        $(this).find('p').addClass("text-dark");
+        console.log($(this).find('p'));
+        console.log($(".nav").children());
+        var username = event.currentTarget.dataset.uname;
+        userId = event.currentTarget.dataset.connid;
+        console.log("userId: "+userId);
+        document.getElementsByClassName("chat-sect")[0].style.display = "flex";
+        document.getElementsByClassName("no-chat")[0].style.display = "none";
+        document.getElementById("convo_partner_name").innerHTML = username;
+    });
+
     document.getElementById("sendButton").addEventListener("click", function (event) {
-        var user = document.getElementById("userInput").value;
         var message = document.getElementById("messageInput").value;
-        connection.invoke("SendMessage", connection_id, message).catch(function (err) {
+        connection.invoke("SendMessage", userId, message).catch(function (err) {
             return console.error(err.toString());
         });
         event.preventDefault();
@@ -108,4 +126,9 @@ window.onload = function() {
         //console.log("username: " + username + ", " + "password: " + password);
     });
 
+
+    $("form").submit(function () {
+        alert($("#username").val());
+        //window.username = $("#username").val();
+    });
 };

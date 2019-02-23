@@ -75,6 +75,18 @@ p{
     margin-bottom: 10px;
 }
 
+.chat-sect{
+    flex-direction: column;
+}
+
+.active {
+    background-color: #C7C7C7;
+    color: #000;
+    border-radius: 5px;
+    padding: 0 5px;
+    cursor: pointer;
+}
+
 .sender {
     background-color: #484848;
     color: #fff;

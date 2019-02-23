@@ -54,7 +54,7 @@ namespace ASPNETCore_ChatApp.Models
             
         }
 
-        public dynamic GetUserByUname(string uname)
+        public User GetUserByUname(string uname)
         {
             User user = null;
 
@@ -80,6 +80,28 @@ namespace ASPNETCore_ChatApp.Models
                         };
                     }
                     return user;
+                }
+            }
+
+        }
+
+        public bool GetOnlineUser(string uname)
+        {
+            using (MySqlConnection conn = GetConnection())
+            {
+                conn.Open();
+                string sql = "SELECT * FROM is_online " +
+                    "WHERE username = ?username";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("?username", uname);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        return true;
+                    }
+                    return false;
                 }
             }
 
@@ -168,27 +190,80 @@ namespace ASPNETCore_ChatApp.Models
             }
         }
 
-        public dynamic InsertOnlineUser(string username, string connection_id)
+
+
+        public dynamic SetOnlineUser(string username, string connection_id)
         {
             try
             {
-                using (MySqlConnection conn = GetConnection())
+                System.Diagnostics.Debug.WriteLine("GetUserByUname(username) is null: " + GetOnlineUser(username) is null);
+
+                if (GetOnlineUser(username)) //if user is online
                 {
-                    conn.Open();
-                    string sql = "INSERT INTO is_online(connection_id, username) " +
-                        "VALUES(?connection_id, ?username)";
-                    MySqlCommand cmd = new MySqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("?connection_id", connection_id);
-                    cmd.Parameters.AddWithValue("?username", username);
-                    cmd.ExecuteNonQuery();
-                    conn.Close();
+                    UpdateOnlineUser(username, connection_id);
                 }
+                else // if user is not online
+                {
+                    InsertOnlineUser(username, connection_id);
+                }
+
                 return GetOnlineUsers();
             }
             catch (MySqlException ex)
             {
                 System.Diagnostics.Debug.WriteLine("mysql error: " + ex.Message);
                 return "mysql error: " + ex.Message;
+            }
+        }
+
+        public void UpdateOnlineUser(string username, string connection_id)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("GetUserByUname(username) is null: " + GetOnlineUser(username) is null);
+
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "UPDATE is_online " +
+                            "SET connection_id = ?connection_id " +
+                            "WHERE username = ?username";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?connection_id", connection_id);
+                    cmd.Parameters.AddWithValue("?username", username);
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("mysql error: " + ex.Message);
+            }
+        }
+
+        public void InsertOnlineUser(string username, string connection_id)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("GetUserByUname(username) is null: " + GetOnlineUser(username) is null);
+
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "INSERT INTO is_online(connection_id, username) " +
+                            "VALUES(?connection_id, ?username)";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?connection_id", connection_id);
+                    cmd.Parameters.AddWithValue("?username", username);
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("mysql error: " + ex.Message);
             }
         }
 
