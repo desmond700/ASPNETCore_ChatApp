@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 22, 2019 at 05:31 AM
+-- Generation Time: Feb 26, 2019 at 04:53 AM
 -- Server version: 10.1.37-MariaDB
 -- PHP Version: 7.3.1
 
@@ -45,36 +45,16 @@ DELIMITER ;
 CREATE TABLE `is_online` (
   `online_id` int(11) NOT NULL,
   `username` varchar(150) NOT NULL,
-  `connection_id` varchar(256) NOT NULL
+  `connection_id` varchar(256) NOT NULL,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `is_online`
 --
 
-INSERT INTO `is_online` (`online_id`, `username`, `connection_id`) VALUES
-(28, 'desmond700', 'VolT_F-8dpPNqQro4czCfw');
-
---
--- Triggers `is_online`
---
-DELIMITER $$
-CREATE TRIGGER `is_online_before_trigger` BEFORE INSERT ON `is_online` FOR EACH ROW BEGIN
-	DECLARE onlineId INT;
-  	SET onlineId = (SELECT o.online_id 
-                    FROM is_online o
-                    WHERE o.username = NEW.username);
-
-	IF(EXISTS(SELECT username FROM is_online
-             WHERE username = NEW.username)) THEN
-             
-           DELETE FROM is_online
-           WHERE online_id = onlineId;
-           
-    END IF;
-END
-$$
-DELIMITER ;
+INSERT INTO `is_online` (`online_id`, `username`, `connection_id`, `date`) VALUES
+(33, 'desmond700', 'tO87_QlEQxIgk7lN0dQRlg', '2019-02-25 22:50:05');
 
 -- --------------------------------------------------------
 
@@ -87,16 +67,19 @@ CREATE TABLE `user` (
   `username` varchar(150) NOT NULL,
   `email` varchar(250) NOT NULL,
   `password` varchar(250) NOT NULL,
-  `image` varchar(256) NOT NULL
+  `image` varchar(256) NOT NULL,
+  `status` varchar(45) NOT NULL DEFAULT 'Offline',
+  `date_joined` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`user_id`, `username`, `email`, `password`, `image`) VALUES
-(8, 'desmond700', 'desmond700@gmail.com', 'password', '15027583_1430471596982184_305908304077287745_n.jpg'),
-(9, 'johndoe123', 'johndoe123@gmail.com', 'johndoe', 'user.png');
+INSERT INTO `user` (`user_id`, `username`, `email`, `password`, `image`, `status`, `date_joined`) VALUES
+(8, 'desmond700', 'desmond700@gmail.com', 'password123', '15027583_1430471596982184_305908304077287745_n.jpg', 'Offline', '2019-02-25 19:25:14'),
+(10, 'johndoe123', 'johndoe123@gmail.com', 'johndoe', 'user.png', 'Offline', '2019-02-25 19:25:14'),
+(11, 'alex23', 'alexwest23@yahoo.com', 'alexwest', 'user.png', 'Offline', '2019-02-25 20:33:07');
 
 --
 -- Triggers `user`
@@ -137,13 +120,13 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `is_online`
 --
 ALTER TABLE `is_online`
-  MODIFY `online_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `online_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables

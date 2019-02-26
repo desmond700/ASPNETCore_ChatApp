@@ -27,14 +27,16 @@ p{
 
 .list-panel {
     background-color: #212020;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 120px);
+    margin-bottom: 40px;
 }
 
 .message-panel {
     display: flex;
     flex-direction: column;
     background-color: #979797;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 120px);
+    margin-bottom: 40px;
 }
 
 .message-box{
