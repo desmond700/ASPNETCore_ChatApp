@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ASPNETCore_ChatApp.Models;
 using ASPNETCore_ChatApp.Hubs;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using ASPNETCore_ChatApp.Helper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASPNETCore_ChatApp
 {
@@ -39,7 +36,7 @@ namespace ASPNETCore_ChatApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            /*services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, option =>
             {
                 option.Cookie.Name = "aspnet_chatapp_authCookie";
@@ -50,23 +47,37 @@ namespace ASPNETCore_ChatApp
                 option.ExpireTimeSpan = new TimeSpan((new DateTime()).Millisecond + (1000 * 60 * 60));
                 /*option.TicketDataFormat = ticketFormat;
                 option.CookieManager = new CustomChunkingCookieManager();*/
-            });
+            /*});*/
+            
             services.AddSignalR();
             services.AddSession();
             services.AddSingleton<RequestHandler>();
             services.AddHttpContextAccessor();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddDbContext<IdentityDbContext>(options =>
+                options.UseSqlite("Data Source=users.sqlite",
+            optionsBuilder => optionsBuilder.MigrationsAssembly("ASPNETCore_ChatApp")));
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.User.RequireUniqueEmail = false;
+            }).AddEntityFrameworkStores<IdentityDbContext>()
+                .AddDefaultTokenProviders(); ;
             services.Add(new ServiceDescriptor(typeof(ChatDBContext), new ChatDBContext(Configuration.GetConnectionString("DefaultConnection"))));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IdentityDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
                 app.UseAuthentication();
 
                 app.UseDeveloperExceptionPage();
+
+                dbContext.Database.Migrate(); //this will generate the db if it does not exist
             }
             else
             {
@@ -77,6 +88,7 @@ namespace ASPNETCore_ChatApp
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseMvcWithDefaultRoute();
             app.UseCookiePolicy();
             app.UseSignalR(routes =>
             {
