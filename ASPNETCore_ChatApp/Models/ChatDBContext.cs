@@ -139,6 +139,49 @@ namespace ASPNETCore_ChatApp.Models
                     return user;
                 }
             }
+        }
+
+        public bool IsUsernameExist(string uname)
+        {
+            using (MySqlConnection conn = GetConnection())
+            {
+                conn.Open();
+                string sql = "SELECT * FROM user " +
+                    "WHERE username = ?username";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("?username", uname);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+        }
+
+        public bool IsEmailExist(string email)
+        {
+            using (MySqlConnection conn = GetConnection())
+            {
+                conn.Open();
+                string sql = "SELECT * FROM user " +
+                    "WHERE email = ?email";
+                MySqlCommand cmd = new MySqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("?email", email);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
 
         }
 

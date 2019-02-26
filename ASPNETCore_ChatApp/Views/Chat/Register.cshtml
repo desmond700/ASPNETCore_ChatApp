@@ -1,6 +1,49 @@
 ﻿
 @{
     ViewData["Title"] = "Register";
+
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            
+
+            document.getElementById("username").addEventListener("focusout", (event) => {
+                let username = event.currentTarget.value;
+                
+                console.log("focusout: " + username);
+
+                $.ajax({
+                    type: 'POST',
+                    url: "IsUserAvailable",
+                    data: { username: username }
+                }).done(function (result) {
+                    if(result)
+                        $(".username-error").html("Username is unavailable");
+                    else
+                        $(".username-error").empty();
+                });
+
+            });
+
+            document.getElementById("email").addEventListener("focusout", (event) => {
+                let email = event.currentTarget.value;
+
+                console.log("focusout: " + email);
+
+                $.ajax({
+                    type: 'POST',
+                    url: "IsEmailAvailable",
+                    data: { email: email }
+                }).done(function (result) {
+                    if (result)
+                        $(".email-error").html("Email is unavailable");
+                    else
+                        $(".email-error").empty();
+                });
+            });
+        };
+    </script>
 }
 
 <div class="container w-50" style="margin-top: 100px">
@@ -11,11 +54,13 @@
     <form class="mt-5" asp-controller="Chat" asp-action="Register" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label>Username</label>
-            <input type="text" class="form-control" name="UserName" />
+            <input type="text" class="form-control" name="UserName" id="username" />
+            <div class="text-danger username-error"></div>
         </div>
         <div class="form-group">
             <label>Email</label>
-            <input type="email" class="form-control" name="Email" aria-describedby="emailHelp" />
+            <input type="email" class="form-control" name="Email" id="email" aria-describedby="emailHelp" />
+            <div class="text-danger email-error"></div>
         </div>
         <div class="form-group">
             <label>Password</label>
@@ -41,3 +86,4 @@
         </div>
     }
 </div>
+

@@ -162,9 +162,20 @@ namespace ASPNETCore_ChatApp.Controllers
             return RedirectToAction("Login");
         }
 
-        protected void Session_End()
+        [HttpPost]
+        public bool IsUserAvailable(string username)
         {
-            Logout();
+            var IsUserExist = MySqlDBContext.IsUsernameExist(username);
+            Debug.WriteLine("IsUsernameExist: " + IsUserExist);
+            return IsUserExist;
+        }
+
+        [HttpPost]
+        public bool IsEmailAvailable(string email)
+        {
+            var IsUserExist = MySqlDBContext.IsEmailExist(email);
+            Debug.WriteLine("IsEmailAvailable: " + IsUserExist);
+            return IsUserExist;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

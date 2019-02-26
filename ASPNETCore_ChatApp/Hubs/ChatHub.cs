@@ -100,16 +100,5 @@ namespace ASPNETCore_ChatApp.Hubs
             ChatDBContext context = this.requestHandler.ChatDBRequest();
             return context ?? null;
         }
-
-        /*public Dictionary<string, User> GetAllActiveUsers()
-        {
-            System.Diagnostics.Debug.WriteLine("item key count: " + CurrentUsersList.Count); 
-
-            foreach (var item in CurrentUsersList)
-            {
-                System.Diagnostics.Debug.WriteLine("item key: " + item.Key);
-            }
-            return CurrentUsersList.ToAsyncEnumerable();
-        }*/
     }
 }

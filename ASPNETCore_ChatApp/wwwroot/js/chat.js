@@ -126,9 +126,4 @@ window.onload = function () {
         //console.log("username: " + username + ", " + "password: " + password);
     });
 
-
-    $("form").submit(function () {
-        alert($("#username").val());
-        //window.username = $("#username").val();
-    });
 };
