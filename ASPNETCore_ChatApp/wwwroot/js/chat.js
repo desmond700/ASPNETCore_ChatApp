@@ -42,7 +42,7 @@ window.onload = function () {
             }).map((item, key) => {
                 console.log("key: "+key);
                 var p = $("<p>" + item.username + "</p>");
-                var span = $("<span class='text-secondary'>" + new Date().getFullYear() + "</span>");
+                var span = $("<span class='text-secondary'>" + item.date + "</span>");
                 var div = $("<div class='ml-2'></div>").append(p, span);
                 var img = $("<img src='/img/" + item.image + "' class='my-auto img-round' width='34' height='34' />");
                 var navItem = $("<div class='nav-item d-flex' data-uname='" + item.username + "' data-connId='" + item.connectionId + "'></div>").append(img, div);

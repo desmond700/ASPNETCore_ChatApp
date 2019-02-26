@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,138 +6,160 @@ using Microsoft.AspNetCore.Mvc;
 using ASPNETCore_ChatApp.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using System.Net;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.SignalR;
+using MySql.Data.MySqlClient;
+using Microsoft.AspNetCore.Identity;
+using ASPNETCore_ChatApp.Helper;
+using ASPNETCore_ChatApp.ViewModels;
 
 namespace ASPNETCore_ChatApp.Controllers
 {
     public class ChatController : Controller
     {
-        IHttpContextAccessor contextAccessor;
+        public IdentityUserHandler UserHandler;
+        public ChatController(UserManager<IdentityUser> userManager, 
+            SignInManager<IdentityUser> signInManager)
+        {
+            UserHandler = new IdentityUserHandler(userManager, signInManager);
+        }
+
+        public ChatDBContext MySqlDBContext
+        {
+            get
+            {
+                return HttpContext.RequestServices.GetService(typeof(ChatDBContext)) as ChatDBContext;
+            }
+        }
+
         public IActionResult Index()
         {
             return RedirectToAction("Login");
         }
 
+        [HttpGet]
         public IActionResult Login()
         {
-            Debug.WriteLine("Directory: "+ Directory.GetCurrentDirectory());
             return View();
         }
 
-        public async void Logout()
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel login)
         {
-            await HttpContext.SignOutAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme);
+            if (ModelState.IsValid)
+            {
+                var user = await UserHandler.UserManager.FindByNameAsync(login.UserName);
 
-            //return RedirectToAction("Login");
+                if (user == null)
+                {
+                    Debug.WriteLine("User is null: ");
+                    ModelState.AddModelError(string.Empty, "Invalid login");
+                    return View();
+                }
+                var passwordSignInResult = await UserHandler.SignInManager.PasswordSignInAsync(user, login.Password, isPersistent: login.RememberMe, lockoutOnFailure: false);
+                if (!passwordSignInResult.Succeeded)
+                {
+                    Debug.WriteLine("Invalid login password");
+                    ModelState.AddModelError(string.Empty, "Invalid login password");
+                    return View();
+                }
+                try
+                {
+                    User userData = MySqlDBContext.GetUser(login.UserName, login.Password);
+                    MySqlDBContext.UpdateUserStatus(user.UserName, "Online");
+                    return RedirectToAction("Hub", new { user = userData.Username });
+                }
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine("Mysql Error: " + ex.Message);
+                }
+            }
+            else
+            {
+                Debug.WriteLine("ModelState Error: " + string.Join(" | ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)));
+            }      
+
+            return View();
         }
 
+        public async Task<IActionResult> Logout()
+        {
+            var currentUser = Request.HttpContext.User.Identity.Name;
+
+            await UserHandler.SignInManager.SignOutAsync();
+            MySqlDBContext.UpdateUserStatus(currentUser, "Offline");
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
         public IActionResult Register()
         {
             return View();
         }
 
-        public async Task<IActionResult> Hub(IFormCollection form)
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel register)
         {
-            //var user = TempData["UserData"] as User;
-            //Debug.WriteLine("userData: " + user.Username);
-
-
-
             if (ModelState.IsValid)
             {
-                ChatDBContext context = HttpContext.RequestServices.GetService(typeof(ChatDBContext)) as ChatDBContext;
-                User userData = new User(contextAccessor);
-
-                var imageFile = form.Files["img-file"];
-
-                if (form["form-type"] == "login")
+                try
                 {
-                    userData = context.GetUser(form["uname"].ToString(), form["pwrd"].ToString());
-
-                    AuthenticateUser(userData.Username);
-
-                    Debug.WriteLine("Name: "+ userData.Username + ", " + userData.Email);
-                }
-                else if (form["form-type"] == "register")
-                {
-                    User user = new User(contextAccessor)
+                    User user = new User()
                     {
-                        Username = form["uname"].ToString(),
-                        Email = form["email"].ToString(),
-                        Password = form["pwrd"].ToString(),
+                        Username = register.UserName,
+                        Email = register.Email,
+                        Password = register.Password,
                         Image = null
                     };
-                    
-                    if (imageFile != null && imageFile.Length > 0)
+
+                    if (register.Image != null && register.Image.Length > 0)
                     {
-                        var fileName = Path.GetFileName(imageFile.FileName);
+                        var fileName = Path.GetFileName(register.Image.FileName);
                         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\img", fileName);
                         using (var fileSteam = new FileStream(filePath, FileMode.Create))
                         {
-                            await imageFile.CopyToAsync(fileSteam);
+                            await register.Image.CopyToAsync(fileSteam);
                         }
                         user.Image = fileName;
                     }
-
-                    userData = context.InsertUser(user);
-                    AuthenticateUser(userData.Username);
+                    MySqlDBContext.InsertUser(user);
+                    await UserHandler.CreateUser(user.Username, user.Email, user.Password);
+                    return RedirectToAction("Login");
                 }
-                
-                //TempData["UserData"] = user;
-                //Debug.WriteLine("UserTemp: "+((User)TempData["UserData"]).Username);
-                return View(userData);
+                catch (MySqlException ex)
+                {
+                    Debug.WriteLine("Mysql Error: " + ex.Message);
+                }
             }
-
-            return RedirectToAction("Login");
+            else
+            {
+                Debug.WriteLine("ModelState Error: " + string.Join(" | ", ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)));
+            }
+            
+            return View();
         }
 
-        private async void AuthenticateUser(string user)
+        public IActionResult Hub(string user)
         {
-            var claims = new List<Claim>()
+            var currentUser = Request.HttpContext.User.Identity.Name;
+
+            Debug.WriteLine("loggedInUser: " + currentUser);
+            if (!string.IsNullOrEmpty(user) && currentUser == user)
             {
-                new Claim(ClaimTypes.NameIdentifier, user),
-                new Claim(ClaimTypes.Name, user),
-                new Claim(ClaimTypes.Role, "User")
-            };
-
-            var userIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            ClaimsPrincipal principal = new ClaimsPrincipal(userIdentity);
-
-            var authProperties = new AuthenticationProperties
-            {
-                AllowRefresh = true,
-                // Refreshing the authentication session should be allowed.
-
-                //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
-                // The time at which the authentication ticket expires. A 
-                // value set here overrides the ExpireTimeSpan option of 
-                // CookieAuthenticationOptions set with AddCookie.
-
-                IsPersistent = true,
-                // Whether the authentication session is persisted across 
-                // multiple requests. Required when setting the 
-                // ExpireTimeSpan option of CookieAuthenticationOptions 
-                // set with AddCookie. Also required when setting 
-                ExpiresUtc = DateTimeOffset.Now.AddDays(1),
-
-                IssuedUtc = DateTimeOffset.Now
-                // The time at which the authentication ticket was issued.
-
-                //RedirectUri = <string>
-                // The full path or absolute URI to be used as an http 
-                // redirect response value.
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                principal, 
-                authProperties);
+                try
+                {
+                    User userData = MySqlDBContext.GetUserByUname(user);
+                    return View(userData);
+                }
+                catch (NullReferenceException ex)
+                {
+                    Debug.WriteLine("Error: " + ex.Message);
+                    return RedirectToAction("Login");
+                } 
+            }
+            return RedirectToAction("Login");
         }
 
         protected void Session_End()

@@ -9,7 +9,6 @@ namespace ASPNETCore_ChatApp.Models
 {
     public class ChatDBContext
     {
-        IHttpContextAccessor contextAccessor;
         public string ConnectionString { get; set; }
 
         public ChatDBContext(string connectionString)
@@ -20,6 +19,62 @@ namespace ASPNETCore_ChatApp.Models
         private MySqlConnection GetConnection()
         {
             return new MySqlConnection(ConnectionString);
+        }
+
+        private string CalculateTimeSinceInserted(string timeStamp)
+        {
+            DateTime dateThen = Convert.ToDateTime(timeStamp);
+            DateTime dateNow = DateTime.Now;
+            int numOfMilliseconds = (int)dateNow.Subtract(dateThen).TotalMilliseconds;
+            int seconds = numOfMilliseconds / 1000;
+            int minutes = seconds / 60;
+            int hours = minutes / 60;
+            int days = hours / 24;
+            int months = days / 30;
+            int years = months / 12;
+
+            if (seconds < 60)
+            {
+                if (seconds == 1)
+                    return seconds + " second ago";
+                else
+                    return seconds + " seconds ago";
+            }
+            else if (minutes < 60)
+            {
+                if (minutes == 1)
+                    return minutes + " minute ago";
+                else
+                    return minutes + " minutes ago";
+            }
+            else if (hours < 24)
+            {
+                if (hours == 1)
+                    return hours + " hour ago";
+                else
+                    return hours + " hours ago";
+            }
+            else if (days < 30)
+            {
+                if (days == 1)
+                    return days + " day ago";
+                else
+                    return days + " days ago";
+            }
+            else if (months >= 60 || months <= 365)
+            {
+                if (months == 1)
+                    return months + " month ago";
+                else
+                    return months + " months ago";
+            }
+            else
+            {
+                if (years == 1)
+                    return years + " year ago";
+                else
+                    return years + " years ago";
+            }
         }
 
         public dynamic GetUser(string uname, string pwrd)
@@ -39,7 +94,7 @@ namespace ASPNETCore_ChatApp.Models
                 {
                     if (reader.Read())
                     {
-                        user = new User(contextAccessor)
+                        user = new User()
                         {
                             Id = Convert.ToInt32(reader["user_id"]),
                             Username = reader["username"].ToString(),
@@ -70,12 +125,14 @@ namespace ASPNETCore_ChatApp.Models
                 {
                     if (reader.Read())
                     {
-                        user = new User(contextAccessor)
+                        user = new User()
                         {
                             Id = Convert.ToInt32(reader["user_id"]),
                             Username = reader["username"].ToString(),
                             Email = reader["email"].ToString(),
                             Password = reader["password"].ToString(),
+                            Status = reader["status"].ToString(),
+                            DateJoined = CalculateTimeSinceInserted(reader["date_joined"].ToString()),
                             Image = reader["image"].ToString()
                         };
                     }
@@ -150,18 +207,42 @@ namespace ASPNETCore_ChatApp.Models
                 {
                     while (reader.Read())
                     {
-                        onlineUsers.Add(new
-                        {
+                        onlineUsers.Add(new{
                             Id = Convert.ToInt32(reader["user_id"]),
                             Username = reader["username"].ToString(),
                             Email = reader["email"].ToString(),
                             Password = reader["password"].ToString(),
                             Image = reader["image"].ToString(),
+                            Status = reader["status"].ToString(),
+                            Date = CalculateTimeSinceInserted(reader["date"].ToString()),
                             ConnectionId = reader["connection_id"].ToString()
                         });
                     }
                     return onlineUsers;
                 }
+            }
+        }
+
+        public void UpdateUserStatus(string username, string status)
+        {
+            try
+            {
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "UPDATE user " +
+                        "SET status = ?status " +
+                        "WHERE username = ?username";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?username", username);
+                    cmd.Parameters.AddWithValue("?status", status);
+                    cmd.ExecuteNonQuery();
+                    conn.Close();
+                }
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("mysql error: " + ex.Message);
             }
         }
 

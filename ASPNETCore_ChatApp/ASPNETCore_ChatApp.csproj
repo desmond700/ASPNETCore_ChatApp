@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <LangVersion>7.2</LangVersion>
+    <UserSecretsId>22e5bdcb-9b27-4503-8931-dde239f42c76</UserSecretsId>
   </PropertyGroup>
 
 
@@ -11,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
     <PackageReference Include="MySql.Data" Version="8.0.15" />
   </ItemGroup>

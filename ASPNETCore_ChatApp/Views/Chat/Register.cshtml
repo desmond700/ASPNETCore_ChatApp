@@ -8,27 +8,36 @@
         <img class="mx-auto" src="~/img/user (1).png" width="150" height="150" />
     </div>
     <p class="text-center">Create a new account</p>
-    <form class="mt-5" asp-controller="Chat" asp-action="Hub" method="post" enctype="multipart/form-data">
+    <form class="mt-5" asp-controller="Chat" asp-action="Register" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label>Username</label>
-            <input type="text" class="form-control" name="uname" required />
+            <input type="text" class="form-control" name="UserName" />
         </div>
         <div class="form-group">
             <label>Email</label>
-            <input type="email" class="form-control" name="email" aria-describedby="emailHelp" required />
+            <input type="email" class="form-control" name="Email" aria-describedby="emailHelp" />
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input type="password" class="form-control" name="pwrd" required />
+            <input type="password" class="form-control" name="Password" />
+        </div>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" class="form-control" name="ConfirmPassword" />
         </div>
         <div class="form-group">
             <label>Upload image</label>
-            <input type="file" class="form-control-file" name="img-file" />
+            <input type="file" class="form-control-file" name="Image" />
         </div>
-        <input type="hidden" name="form-type" value="register" />
         <div class="py-3 d-flex justify-content-between">
             <a href="@Url.Action("Login", "Chat")">Back to login</a>
             <button type="submit" class="btn">Register</button>
         </div>
     </form>
+    @if (!ViewContext.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
 </div>

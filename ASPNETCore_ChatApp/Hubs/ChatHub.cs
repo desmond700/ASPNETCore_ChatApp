@@ -75,6 +75,7 @@ namespace ASPNETCore_ChatApp.Hubs
 
             try
             {
+                ((ChatDBContext)dbContext()).UpdateUserStatus(Context.User.Identity.Name, "Offline");
                 ((ChatDBContext)dbContext()).RemoveOnlineUser(Context.User.Identity.Name);
                 List<object> userObj = ((ChatDBContext)dbContext()).GetOnlineUsers();
                 Clients.All.SendAsync("GetConnectedUsers", userObj);

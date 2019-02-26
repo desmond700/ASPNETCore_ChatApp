@@ -1,4 +1,5 @@
-﻿@{
+﻿
+@{
     ViewData["Title"] = "ASPNETChat - Login";
 
     <script type="text/javascript">
@@ -12,24 +13,32 @@
 
 
 
-<div class="container w-50" style="margin-top: 100px">
-    <div class="d-flex">
-        <img class="mx-auto" src="~/img/user (1).png" width="150" height="150" />
+    <div class="container w-50" style="margin-top: 100px">
+        <div class="d-flex">
+            <img class="mx-auto" src="~/img/user (1).png" width="150" height="150" />
+        </div>
+        <p class="text-center">Enter your information to login to your account</p>
+        <form id="loginForm" class="mt-5" asp-controller="Chat" asp-action="Login" method="post">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" class="form-control" name="UserName" id="username" />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" class="form-control" name="Password" />
+            </div>
+            <div class="d-flex justify-content-between">
+                <label><input name="rememberMe" checked="checked" type="checkbox" value="true" /> &nbsp;Remember me</label>
+                <a href="@Url.Action("Register", "Chat")">Need an account?</a>
+            </div>
+            <div class="py-2 d-flex justify-content-end">
+                <button type="submit" id="submitBtn" class="btn">Login</button>
+            </div>
+        </form>
+        @if (!ViewContext.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
     </div>
-    <p class="text-center">Enter your information to login to your account</p>
-    <form id="loginForm" class="mt-5" asp-controller="Chat" asp-action="Hub" method="post">
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" class="form-control" name="uname" id="username" required />
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" class="form-control" name="pwrd" required />
-        </div>
-        <input type="hidden" name="form-type" value="login" />
-        <div class="py-3 d-flex justify-content-between">
-            <a href="@Url.Action("Register", "Chat")">Need an account?</a>
-            <button type="submit" id="submitBtn" class="btn">Login</button>
-        </div>
-    </form>
-</div>
