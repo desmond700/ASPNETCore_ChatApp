@@ -266,6 +266,100 @@ namespace ASPNETCore_ChatApp.Models
             }
         }
 
+        public List<Message> GetMessages(int sender, int receiver)
+        {
+            List<Message> list = new List<Message>();
+            Message message = new Message();
+            try
+            {
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "SELECT result.* " +
+                        "FROM( "+
+                        "SELECT a.user_id AS 'sender', a.image AS 'sender_image', b.user_id AS 'receiver', b.image AS 'receiver_image', m.* FROM message m " +
+                        "INNER JOIN user a ON a.user_id = m.from " +
+                        "INNER JOIN user b ON b.user_id = m.to " +
+                        "WHERE a.user_id = ?sender AND b.user_id = ?receiver " +
+                        "UNION " +
+                        "SELECT a.user_id AS 'sender', a.image AS 'sender_image', b.user_id AS 'receiver', b.image AS 'receiver_image', m.* FROM message m " +
+                        "INNER JOIN user a ON a.user_id = m.from " +
+                        "INNER JOIN user b ON b.user_id = m.to " +
+                        "WHERE a.user_id = ?receiver AND b.user_id = ?sender " +
+                        ") result " +
+                        "ORDER BY result.date_sent ASC";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?sender", sender);
+                    cmd.Parameters.AddWithValue("?receiver", receiver);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            message = new Message()
+                            {
+                                Id = Convert.ToInt32(reader["message_id"]),
+                                From = Convert.ToInt32(reader["from"]),
+                                To = Convert.ToInt32(reader["to"]),
+                                Group_id = reader["group_id"] is DBNull ? (int?)null : Convert.ToInt32(reader["group_id"]),
+                                Message_text = reader["message_text"].ToString(),
+                                Date_sent = CalculateTimeSinceInserted(reader["date_sent"].ToString()),
+                                Image = reader["sender_image"].ToString(),
+                            };
+                            list.Add(message);
+                        }
+                        return list;
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("MySQL Error: " + ex.Message);
+                throw ex;
+            }
+        }
+
+        public Message GetMessage(int message_id)
+        {
+            Message message = new Message();
+
+            try
+            {
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "SELECT sender.user_id AS 'from',sender.image AS 'from-image', receiver.user_id AS 'to', m.* " +
+                        "FROM message m " +
+                        "INNER JOIN user sender ON m.from = sender.user_id " +
+                        "INNER JOIN user receiver ON m.to = receiver.user_id " +
+                        "WHERE m.message_id = ?message_id";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?message_id", message_id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            message = new Message()
+                            {
+                                Id = Convert.ToInt32(reader["message_id"]),
+                                From = Convert.ToInt32(reader["from"]),
+                                To = Convert.ToInt32(reader["to"]),
+                                Group_id = reader["group_id"] is DBNull ? (int?)null : Convert.ToInt32(reader["group_id"]),
+                                Message_text = reader["message_text"].ToString(),
+                                Date_sent = CalculateTimeSinceInserted(reader["date_sent"].ToString()),
+                                Image = reader["from-image"].ToString(),
+                            };
+                        }
+                        return message;
+                    }
+                }
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("MySQL Error: "+ex.Message);
+                throw ex;
+            }
+        }
+
         public void UpdateUserStatus(string username, string status)
         {
             try
@@ -314,7 +408,34 @@ namespace ASPNETCore_ChatApp.Models
             }
         }
 
+        public Message InsertMessage(int from, int to, string message_text, int? group_id = null)
+        {
+            System.Diagnostics.Debug.WriteLine("from: "+ from + " to: "+ to + " message_text: " + message_text);
+            try
+            {
+                using (MySqlConnection conn = GetConnection())
+                {
+                    conn.Open();
+                    string sql = "INSERT INTO `message`(`from`, `to`, `group_id`, `message_text`) " +
+                        "VALUES(?from, ?to, ?group_id, ?message_text)";
+                    MySqlCommand cmd = new MySqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("?from", from);
+                    cmd.Parameters.AddWithValue("?to", to);
+                    cmd.Parameters.AddWithValue("?group_id", group_id ?? null);
+                    cmd.Parameters.Add("?message_text", MySqlDbType.Text).Value = message_text;
+                    cmd.ExecuteNonQuery();
+                    int message_id = Convert.ToInt32(cmd.LastInsertedId);
+                    conn.Close();
+                    return GetMessage(message_id);
+                }
 
+            }
+            catch (MySqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("mysql error: " + ex.Message);
+                throw ex;
+            }
+        }
 
         public dynamic SetOnlineUser(string username, string connection_id)
         {

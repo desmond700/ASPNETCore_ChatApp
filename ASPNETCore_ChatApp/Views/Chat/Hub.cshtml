@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "ChatHub";
+
 }
 
 <div class="container">
@@ -11,11 +12,11 @@
     </div>
     <div class="row">
         <!--USER PANEL-->
-        <div class="col-12 col-md-3 px-2 list-panel">
+        <div class="col-xs-12 col-sm-4 col-md-3 list-panel">
             <div class="text-white">
                 <div class="d-flex flex-row my-4">
                     <div class="d-flex">
-                        <img class="my-auto img-round" src="~/img/@Model.Image" alt="user" width="34" height="34" />
+                        <img id="userImg" data-senderid="@Model.Id" class="my-auto img-round" src="~/img/@Model.Image" alt="user" width="34" height="34" />
                     </div>
                     <div class="d-flex flex-wrap align-content-center h-100">
                         <h5 class="text-white mb-0 col-12">@Model.Username</h5>
@@ -24,7 +25,7 @@
                 </div>
                 <div>
                     <div class="d-flex justify-content-between">
-                        <p class="text-white mb-0">Users online</p>
+                        <p class="text-white mb-0 text-nowrap" >Users online</p>
                         <span>(<span id="usersCount"></span>)</span>
                     </div>
                     <hr class="bg-white mt-0" />
@@ -33,7 +34,11 @@
             <ul class="nav flex-column" />
         </div>
         <!--MESSAGE PANEL-->
-        <div class="col-12 col-md-9 message-panel">
+        <div class="col-xs-12 col-sm-8 col-md-9 message-panel">
+            <div>
+                <img id="backBtn" class="mt-2 border" src="~/img/baseline_arrow_back_white_18dp.png" />
+            </div>
+            
             <div class="chat-sect h-100">
                 <h3 class="text-white py-3">Your conversation with <span id="convo_partner_name">convo_partner_name</span></h3>
                 <div class="message-box"></div>
@@ -51,5 +56,5 @@
 </div>
 
 <script src="~/lib/signalr/dist/browser/signalr.js"></script>
-<!--<script src="~/lib/jquery/dist/jquery.signalr-2.2.js"></script>-->
-<script src="~/js/chat.js"></script>
+    <!--<script src="~/lib/jquery/dist/jquery.signalr-2.2.js"></script>-->
+    <script src="~/js/chat.js"></script>

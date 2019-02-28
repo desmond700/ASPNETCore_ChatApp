@@ -29,6 +29,7 @@ p{
     background-color: #212020;
     height: calc(100vh - 120px);
     margin-bottom: 40px;
+    padding: 0 10px;
 }
 
 .message-panel {
@@ -130,6 +131,51 @@ p{
 
 .img-round {
     border-radius: 50%;
+}
+
+#backBtn {
+    display: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: grey;
+}
+
+@media (max-width: 574px) {
+
+    .list-panel {
+        background-color: #212020;
+        height: calc(100vh - 80px);
+        margin-bottom: 0;
+        -webkit-transition: width 0.5s, padding 0.5s; /* Safari */
+        transition: width 0.5s, padding 0.5s;
+        overflow-x: hidden;
+    }
+
+    .message-panel {
+        display: flex;
+        position: absolute;
+        right: 0;
+        width: 0;
+        height: calc(100vh - 80px);
+        margin-bottom: 0;
+        padding: 0;
+        -webkit-transition: width 0.5s, padding 0.5s; /* Safari */
+        transition: width 0.5s, padding 0.5s;
+        overflow-x: hidden;
+    }
+
+    .container-fluid{
+        padding: 0;
+    }
+
+    .chat-sect h3{
+        white-space: nowrap;
+        font-size: 120%;
+    }
+
+    #backBtn {
+        display: block;
+    }
 }
 
 @media (min-width: 768px) {

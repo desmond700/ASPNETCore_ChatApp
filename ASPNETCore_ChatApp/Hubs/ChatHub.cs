@@ -20,22 +20,19 @@ namespace ASPNETCore_ChatApp.Hubs
         private RequestHandler requestHandler;
         private string CallerConnectionId { get { return Context.ConnectionId; } }
 
-        List<User> CurrentUsersList = new List<User>();
-        //List<KeyValuePair<string, int>> list = dictionary.ToList();
-
         public ChatHub(RequestHandler requestHandler)
         {
             this.requestHandler = requestHandler;
         }
 
-        public async Task SendMessage(string userid, string message)
+        public async Task SendMessage(int from, int to, string message, string userConnectionId)
         {
             
-            User userObj = ((ChatDBContext)dbContext()).GetUserByUname(Context.User.Identity.Name);
+            Message messageObj = ((ChatDBContext)dbContext()).InsertMessage(from, to, message);
             
-                await Clients.Caller.SendAsync("SentMessage", userObj, message);
-            //if (Context.ConnectionId == userid)
-                await Clients.Client(userid).SendAsync("ReceiveMessage", userObj, message);
+            await Clients.Caller.SendAsync("SentMessage", messageObj);
+            
+            await Clients.Client(userConnectionId).SendAsync("ReceiveMessage", messageObj);
         }
 
         public override Task OnConnectedAsync()
@@ -49,8 +46,6 @@ namespace ASPNETCore_ChatApp.Hubs
             {
                 List<object> userObj = ((ChatDBContext)dbContext()).SetOnlineUser(Context.User.Identity.Name, Context.ConnectionId);
 
-                //CurrentUsersList = userObj;
-                System.Diagnostics.Debug.WriteLine("item key count: " + CurrentUsersList.Count);
                 Clients.All.SendAsync("GetConnectedUsers", userObj);
             }
             catch (MySqlException ex)
@@ -61,13 +56,6 @@ namespace ASPNETCore_ChatApp.Hubs
             
             return base.OnConnectedAsync();
         }
-
-        /*public override Task OnReconnectedAsync(string connectionId)
-        {
-            System.Diagnostics.Debug.WriteLine("reconnected");
-
-            return null;
-        }*/
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
@@ -87,6 +75,11 @@ namespace ASPNETCore_ChatApp.Hubs
             }
 
             return base.OnDisconnectedAsync(exception); ;
+        }
+
+        public List<Message> GetMessages(int sender, int receiver)
+        {
+            return ((ChatDBContext)dbContext()).GetMessages(sender, receiver);
         }
 
         public string GetConnectionId()

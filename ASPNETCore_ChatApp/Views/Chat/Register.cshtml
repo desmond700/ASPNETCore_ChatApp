@@ -5,14 +5,8 @@
     <script src="~/lib/signalr/dist/browser/signalr.js"></script>
     <script type="text/javascript">
         window.onload = function () {
-
-            
-
             document.getElementById("username").addEventListener("focusout", (event) => {
                 let username = event.currentTarget.value;
-                
-                console.log("focusout: " + username);
-
                 $.ajax({
                     type: 'POST',
                     url: "IsUserAvailable",
@@ -28,9 +22,6 @@
 
             document.getElementById("email").addEventListener("focusout", (event) => {
                 let email = event.currentTarget.value;
-
-                console.log("focusout: " + email);
-
                 $.ajax({
                     type: 'POST',
                     url: "IsEmailAvailable",
