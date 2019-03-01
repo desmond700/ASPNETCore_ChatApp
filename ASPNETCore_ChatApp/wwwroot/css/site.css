@@ -25,7 +25,24 @@ p{
     margin: 0;
 }
 
+.admin-link {
+    align-self: flex-start;
+    display: block;
+    padding: 4px 10px;
+    color: darkgrey;
+    margin-bottom: 10px;
+}
+
+.admin-link:hover{
+    text-decoration: none;
+    background-color: #333;
+    color: #fff;
+    border-radius: 5px;
+}
+
 .list-panel {
+    display: flex;
+    flex-direction: column;
     background-color: #212020;
     height: calc(100vh - 120px);
     margin-bottom: 40px;
@@ -43,7 +60,6 @@ p{
 .message-box{
     flex-grow: 1;
     overflow-y: auto;
-    margin-bottom: 10px;
     padding: 10px;
     background-color: grey;
 }
@@ -51,6 +67,25 @@ p{
 .message {
     display: flex;
 }
+
+.message-status {
+    display: none;
+    position: absolute;
+    margin: 0 auto;
+    padding: 10px;
+    max-width: 240px;
+    text-align: center;
+    opacity: 80;
+    background-color: #333;
+    border-radius: 5px;
+    color: #fff;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+    transition: bottom ease-in-out 0.3s;
+    -webkit-transition: bottom ease-in-out 0.3s; /* Safari */
+}
+
 
 .message-container {
     display: flex;
@@ -75,7 +110,20 @@ p{
 .message-input {
     align-self: flex-end;
     width: 100%;
-    margin-bottom: 10px;
+    padding: 10px 0;
+    background-color: #979797;
+    z-index: 10;
+}
+
+.msg-container {
+    padding: 0 10px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.msg-container p {
+    white-space: pre-wrap; /* CSS3 */
+    word-wrap: break-word;
 }
 
 .chat-sect{
@@ -100,13 +148,22 @@ p{
     color: #000;
 }
 
+.nav {
+    display: flex;
+    flex-direction: column;
+    height: 100% !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex-wrap: nowrap;
+}
 
 .nav-item {
+    width: 100%;
     padding: 0 5px;
 }
 
 .nav-item:hover {
-    background-color: #C7C7C7;
+    background-color: #333;
     color: #000;
     border-radius: 5px;
     padding: 0 5px;
@@ -118,7 +175,11 @@ p{
 }
 
 .nav-item:hover div p {
-    color: #000;
+    color: #fff;
+}
+
+.nav-item:hover div p.text-dark {
+    color: #fff;
 }
 
 .nav-item p.name {
@@ -144,10 +205,10 @@ p{
 
     .list-panel {
         background-color: #212020;
-        height: calc(100vh - 80px);
+        height: calc(100vh - 70px);
         margin-bottom: 0;
         -webkit-transition: width 0.5s, padding 0.5s; /* Safari */
-        transition: width 0.5s, padding 0.5s;
+        transition: width 0.5s;
         overflow-x: hidden;
     }
 
@@ -156,7 +217,7 @@ p{
         position: absolute;
         right: 0;
         width: 0;
-        height: calc(100vh - 80px);
+        height: calc(100vh - 70px);
         margin-bottom: 0;
         padding: 0;
         -webkit-transition: width 0.5s, padding 0.5s; /* Safari */
@@ -164,7 +225,17 @@ p{
         overflow-x: hidden;
     }
 
-    .container-fluid{
+    .msg-container {
+        padding: 0 10px;
+        width: 100%;
+        max-width: 220px;
+    }
+
+    .message-status{
+        bottom: -35px;
+    }
+
+    .container-fluid {
         padding: 0;
     }
 

@@ -36,19 +36,6 @@ namespace ASPNETCore_ChatApp
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            /*services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, option =>
-            {
-                option.Cookie.Name = "aspnet_chatapp_authCookie";
-                option.Cookie.Domain = "localhost";
-                option.SlidingExpiration = true;
-                option.Cookie.HttpOnly = true;
-                option.Cookie.Path = "/chatHub";
-                option.ExpireTimeSpan = new TimeSpan((new DateTime()).Millisecond + (1000 * 60 * 60));
-                /*option.TicketDataFormat = ticketFormat;
-                option.CookieManager = new CustomChunkingCookieManager();*/
-            /*});*/
-            
             services.AddSignalR();
             services.AddSession();
             services.AddSingleton<RequestHandler>();
