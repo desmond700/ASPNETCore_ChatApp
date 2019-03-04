@@ -8,9 +8,10 @@ window.onload = function () {
     
     var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
     var username = window.sessionStorage.getItem("uname");
-    var senderId;
+    var senderId = document.getElementById("userImg").dataset.senderid;
     var receiverId;
     var userConnId;
+    var recipient;
 
     connection.start();
 
@@ -51,12 +52,27 @@ window.onload = function () {
         sentMessage(message);
     });
 
+    connection.on("WhoIsTyping", function (who, isTyping) {
+        console.log(name);
+        if (recipient === who) {
+            if (isTyping) {
+                $("#isTyping").show();
+                var html = who + " is typing...";
+                $("#isTyping").html(html);
+            } else {
+                $("#isTyping").hide();
+                $("#isTyping").empty();
+            }
+        }
+        
+        
+    });
+
     $(".nav").on("click", ".nav-item", function (event) {
         $(".message-box .message-container").remove();
         $('li.nav-item div p').removeClass("text-dark");
         var width = window.innerWidth;
-        var username = event.currentTarget.dataset.uname;
-        senderId = document.getElementById("userImg").dataset.senderid;
+        recipient = event.currentTarget.dataset.uname;
         receiverId = event.currentTarget.dataset.receiverid;
         userConnId = event.currentTarget.dataset.connid;
 
@@ -68,7 +84,7 @@ window.onload = function () {
 
         document.getElementsByClassName("chat-sect")[0].style.display = "flex";
         document.getElementsByClassName("no-chat")[0].style.display = "none";
-        document.getElementById("convo_partner_name").innerHTML = username;
+        document.getElementById("convo_partner_name").innerHTML = recipient;
 
         if (width <= 574) {
             pageTransition();
@@ -92,16 +108,36 @@ window.onload = function () {
         });
     });
 
+    document.getElementById("messageInput").addEventListener("blur", function (event) {
+        console.log("lost focus");
+        var messageInput = event.currentTarget.value;
+        var username = $("#username").html();
+
+        console.log("username: " + username + " userConnId: " + userConnId);
+        connection.invoke("IsTyping", username, userConnId, false).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+
+    }, false);
+
     document.getElementById("messageInput").addEventListener("keyup", function (event) {
         console.log(event.currentTarget.value);
         var messageInput = event.currentTarget.value;
-        
+        var username = $("#username").html();
+
         if (messageInput === "") {
             console.log("messageInput is empty. ");
             document.getElementById("sendButton").disabled = true;
         }
 
         document.getElementById("sendButton").disabled = false;
+
+        console.log("username: " + username + " userConnId: " + userConnId);
+        connection.invoke("IsTyping", username, userConnId, true).catch(function (err) {
+            return console.error(err.toString());
+        });
+
 
     }, false);
 

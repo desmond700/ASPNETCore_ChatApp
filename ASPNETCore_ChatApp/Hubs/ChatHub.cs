@@ -18,7 +18,6 @@ namespace ASPNETCore_ChatApp.Hubs
         private readonly static ConnectionMapping<string> _connections =
             new ConnectionMapping<string>();
         private RequestHandler requestHandler;
-        private string CallerConnectionId { get { return Context.ConnectionId; } }
 
         public ChatHub(RequestHandler requestHandler)
         {
@@ -33,6 +32,12 @@ namespace ASPNETCore_ChatApp.Hubs
             await Clients.Caller.SendAsync("SentMessage", messageObj);
             
             await Clients.Client(userConnectionId).SendAsync("ReceiveMessage", messageObj);
+        }
+
+        public async Task IsTyping(string name, string userId, bool isTyping)
+        {
+            await Clients.Client(userId).SendAsync("WhoIsTyping", name, isTyping);
+            System.Diagnostics.Debug.WriteLine("userId: "+ userId+" is typing...");
         }
 
         public override Task OnConnectedAsync()

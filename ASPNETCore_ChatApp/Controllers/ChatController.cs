@@ -162,6 +162,11 @@ namespace ASPNETCore_ChatApp.Controllers
             return RedirectToAction("Login");
         }
 
+        protected void Session_End()
+        {
+
+        }
+
         [HttpPost]
         public bool IsUserAvailable(string username)
         {

@@ -201,8 +201,11 @@ p{
     background-color: grey;
 }
 
-@media (max-width: 574px) {
+#isTyping{
+    display: none;
+}
 
+@media (max-width: 574px) {
     .list-panel {
         background-color: #212020;
         height: calc(100vh - 70px);

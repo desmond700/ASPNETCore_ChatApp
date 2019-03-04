@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewData["Title"] = "Panel";
+    
+    <style>
+        .container-fluid{
+            padding: 0;
+        }
+        .menu{
+            background-color:dimgrey;
+        }
+        .view {
+            display: flex;
+            flex-direction: column;
+            background-color: #979797;
+            height: calc(100vh - 120px);
+        }
+    </style>
+}
+
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <a class="navbar-brand" href="#">Administration Panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav ml-auto">
+            <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link text-nowrap" href="#">View site</a>
+            <a class="nav-item nav-link" href="#">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <!--USER PANEL-->
+        <div class="col-xs-12 col-sm-4 col-md-3 menu">
+            <h4>MENU</h4>
+            <hr />
+            <ul class="nav">
+                <li><a>Users</a></li>
+                <li><a>Latest Messages</a></li>
+            </ul>
+        </div>
+        <!--MESSAGE PANEL-->
+        <div class="col-xs-12 col-sm-8 col-md-9 view">
+
+
+            <div class="chat-sect h-100">
+                <div class="d-flex pb-1">
+                    <img id="backBtn" class="my-auto mr-2 border" src="~/img/baseline_arrow_back_white_18dp.png" />
+                    <h3 class="text-white py-3 m-0">Your conversation with <span id="convo_partner_name" class="text-dark">convo_partner_name</span></h3>
+                </div>
+                <span id="isTyping" class="text-center pb-1"></span>
+                <div class="message-box">
+                    <div class="message-status">message sent</div>
+                </div>
+                <div class="message-input d-flex">
+                    <input type="text" id="messageInput" class="form-control" placeholder="Write a message" />
+                    <button id="sendButton" class="btn">Send</button>
+                </div>
+            </div>
+            <div class="no-chat h-100">
+                <h3 class="text-center align-self-center flex-grow-1">Select an online user to begin chat</h3>
+            </div>
+        </div>
+    </div>
+</div>
