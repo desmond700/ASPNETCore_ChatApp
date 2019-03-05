@@ -1,69 +1,234 @@
 ﻿
 @{
     ViewData["Title"] = "Panel";
-    
-    <style>
-        .container-fluid{
-            padding: 0;
-        }
-        .menu{
-            background-color:dimgrey;
-        }
-        .view {
-            display: flex;
-            flex-direction: column;
-            background-color: #979797;
-            height: calc(100vh - 120px);
-        }
-    </style>
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<nav class="navbar navbar-expand-sm navbar-light bg-light">
-    <a class="navbar-brand" href="#">Administration Panel</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav ml-auto">
-            <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
-            <a class="nav-item nav-link text-nowrap" href="#">View site</a>
-            <a class="nav-item nav-link" href="#">Logout</a>
-        </div>
-    </div>
-</nav>
+<script>
+    window.onload = function () {
 
-<div class="container mt-5">
-    <div class="row">
-        <!--USER PANEL-->
-        <div class="col-xs-12 col-sm-4 col-md-3 menu">
-            <h4>MENU</h4>
-            <hr />
-            <ul class="nav">
-                <li><a>Users</a></li>
-                <li><a>Latest Messages</a></li>
-            </ul>
-        </div>
-        <!--MESSAGE PANEL-->
-        <div class="col-xs-12 col-sm-8 col-md-9 view">
+        document.getElementsByClassName("list-item")[0].addEventListener("click", function (event) {
+            console.log("clicked");
+            document.getElementsByClassName("list-users")[0].style.transform = "translate(-100%)";
+            document.getElementsByClassName("user-details")[0].style.transform = "translate(-100%)";
+        }, false);
 
+        document.getElementsByClassName("list-item-back")[0].addEventListener("click", function () {
+            document.getElementsByClassName("list-users")[0].style.transform = "translate(0)";
+            document.getElementsByClassName("user-details")[0].style.transform = "translate(0)";
+        });
 
-            <div class="chat-sect h-100">
-                <div class="d-flex pb-1">
-                    <img id="backBtn" class="my-auto mr-2 border" src="~/img/baseline_arrow_back_white_18dp.png" />
-                    <h3 class="text-white py-3 m-0">Your conversation with <span id="convo_partner_name" class="text-dark">convo_partner_name</span></h3>
-                </div>
-                <span id="isTyping" class="text-center pb-1"></span>
-                <div class="message-box">
-                    <div class="message-status">message sent</div>
-                </div>
-                <div class="message-input d-flex">
-                    <input type="text" id="messageInput" class="form-control" placeholder="Write a message" />
-                    <button id="sendButton" class="btn">Send</button>
+        document.getElementsByClassName("checkbox-all")[0].addEventListener("change", function () {
+            let checkboxes = document.getElementsByClassName("check-user");
+            if (this.checked) {
+                // Checkbox is checked..
+                console.log("Checkbox is checked");
+                console.log(checkboxes);
+                for (let i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked=true;
+                }
+
+            } else {
+                // Checkbox is not checked..
+                console.log("Checkbox is not checked");
+                for (let i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = false;
+                }
+            }
+        })
+
+        document.getElementsByClassName("check-user")[0].addEventListener("click", function (event) {
+            event.stopPropagation();
+            if (event.currentTarget.checked) {
+                // Checkbox is checked..
+                console.log("Checkbox is checked");
+            } else {
+                // Checkbox is not checked..
+                console.log("Checkbox is not checked");
+            }
+        }, false)
+    }
+</script>
+
+<style>
+    body{
+        background-color: #fff;
+    }
+
+    .container-fluid {
+        padding: 35px 0 0 0;
+    }
+
+    .menu {
+        display: flex;
+        flex-direction: column;
+        background-color: #D5D5D5;
+        height: calc(100vh - 147px);
+    }
+
+    .menu h6{
+        font-weight: bold;
+        color: #000;
+    }
+
+    .list-users {
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        height: calc(100vh - 147px);
+    }
+
+    .nav{
+        height: auto;
+    }
+
+    .nav li{
+        padding: 2px 5px;
+    }
+    .nav li:hover {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .action-dropdown p{
+        margin: auto 0;
+    }
+
+    #search input {
+        display: block;
+        padding: 0.375rem, 0.75rem;
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        height: calc(2.25rem + 2px);
+        font-size: 1rem;
+        color: #495057;
+    }
+
+    #search button {
+        display: inline-block;
+        padding: 0;
+        border-top-right-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+        border: 1px solid transparent;
+        font-size: 0.5rem;
+        line-height: 1.5;
+        cursor: pointer;
+    }
+
+    .checkbox-all {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+
+    .check-user{
+
+    }
+
+    .list-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 10px;
+        margin: 6px 0;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+    }
+
+    .list-item:hover {
+        background-color: #ced4da;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+
+    .list-item-back {
+        padding: 8px 0;
+        border-bottom: 1px solid #ced4da;
+    }
+
+    .list-item-back:hover {
+        background-color: #ced4da;
+        cursor: pointer;
+    }
+
+    .user-view {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-shrink: 0;
+        overflow-x: hidden;
+    }
+
+    .list-users{
+        flex-shrink: 0;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .user-details {
+        flex-shrink: 0;
+        transition: transform 0.5s ease-in-out;
+    }
+</style>
+
+<!--VIEW PANEL-->
+<div class="user-view">
+    <div class="col-md-12 list-users">
+        <div class="d-flex py-3">
+            <div class="d-flex action-dropdown">
+                <p class="mr-2">Action:</p>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Dropdown button
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
                 </div>
             </div>
-            <div class="no-chat h-100">
-                <h3 class="text-center align-self-center flex-grow-1">Select an online user to begin chat</h3>
+        </div>
+        <div class="py-2">
+            <div class="d-flex justify-content-sm-between border-bottom border-secondary" style="padding:0 10px">
+                <div>
+                    <label><input type="checkbox" class="checkbox-all mr-2" />All</label>
+                </div>
+                <div>
+                    <p>Users (<span id="usersCount">0</span>)</p>
+                </div>
+            </div>
+            <div>
+                <div class="list-item">
+                    <div class="d-flex">
+                        <div class="d-flex">
+                            <input type="checkbox" class="check-user mr-2 m-auto" />
+                        </div>
+                        
+                        <div class="d-flex mx-2">
+                            <img class="mr-1" src="~/img/user.png" alt="user" width="34" height="34" />
+                            <p class="my-auto">Username</p>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <img src="~/img/baseline_keyboard_arrow_right_black_18dp.png" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12 user-details">
+        <div class="list-item-back">
+            <div class="d-flex">
+                <div>
+                    <img src="~/img/baseline_keyboard_arrow_left_black_18dp.png" />
+                </div>
+                <div class="d-flex">
+                    <img class="mr-1" src="~/img/user.png" alt="user" width="34" height="34" />
+                    <p class="my-auto">Username</p> 
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+

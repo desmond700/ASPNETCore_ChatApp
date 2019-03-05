@@ -175,11 +175,11 @@ window.onload = function () {
     function pageTransition() {
         console.log("click");
         //document.getElementsByClassName("message-panel").style.display = "flex";
-        document.getElementsByClassName("list-panel")[0].style.width = 0;
+        document.getElementsByClassName("list-panel")[0].style.transform = "translate(-100%)";
         //document.getElementsByClassName("list-panel")[0].style.padding = 0;
 
-        document.getElementsByClassName("message-panel")[0].style.width = "100%";
-        document.getElementsByClassName("message-panel")[0].style.padding = "0 10px";
+        document.getElementsByClassName("message-panel")[0].style.transform = "translate(-100%)";
+        //document.getElementsByClassName("message-panel")[0].style.padding = "0 10px";
 
     }
 
@@ -218,11 +218,9 @@ window.onload = function () {
     document.getElementById("backBtn").addEventListener("click", function () {
         console.log("click");
         //document.getElementsByClassName("message-panel").style.display = "flex";
-        document.getElementsByClassName("list-panel")[0].style.width = "100%";
-        document.getElementsByClassName("list-panel")[0].style.padding = "0 10px";
+        document.getElementsByClassName("list-panel")[0].style.transform = "translate(0)";
 
-        document.getElementsByClassName("message-panel")[0].style.width = 0;
-        document.getElementsByClassName("message-panel")[0].style.padding = 0;
+        document.getElementsByClassName("message-panel")[0].style.transform = "translate(0)";
 
     });
 

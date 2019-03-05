@@ -10,7 +10,7 @@ namespace ASPNETCore_ChatApp.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Panel");
         }
 
         public IActionResult Login()
