@@ -17,8 +17,14 @@ namespace ASPNETCore_ChatApp.Controllers
         {
             return View();
         }
+        [Route("Admin/ListUsers")]
+        public IActionResult ListUsers()
+        {
+            return View();
+        }
 
-        public IActionResult Panel()
+        [Route("Admin/ListUsers/{username:string}")]
+        public IActionResult ListUsers(string username)
         {
             return View();
         }
